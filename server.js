@@ -12,70 +12,81 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "WhatsApp API Running"
+  });
+});
+
 app.post("/send-whatsapp", async (req, res) => {
   try {
 
-    const {
-      customer_name,
-      customer_phone,
-      product_title,
-      product_image,
-      selling_price,
-      product_url
-    } = req.body;
+    const data = req.body;
 
-    const regularPrice = Math.round(selling_price * 1.25);
+    console.log("REQUEST RECEIVED");
+    console.log(JSON.stringify(data, null, 2));
 
-    // MESSAGE 1
-    const msg1 = await client.messages.create({
-      from: "whatsapp:+14155238886",
-      to: `whatsapp:${customer_phone}`,
-      contentSid: "HX65799a1d3eb99bb9023e8a20b309e169",
-      contentVariables: JSON.stringify({
-        "1": customer_name,
-        "2": product_title,
-        "3": String(regularPrice),
-        "4": String(selling_price),
-        "5": "Special Offer Just For You!",
-        "6": product_image
-      })
+    // Send Template 1
+    console.log("Sending Template 1...");
+
+    const template1 = await client.messages.create({
+      from: data.template1.From,
+      to: data.template1.To,
+      contentSid: data.template1.ContentSid,
+      contentVariables: data.template1.ContentVariables
     });
 
-    // MESSAGE 2
-    const msg2 = await client.messages.create({
-      from: "whatsapp:+14155238886",
-      to: `whatsapp:${customer_phone}`,
-      contentSid: "HX0bb5b0e06114a758b6f383777f53c85f",
-      contentVariables: JSON.stringify({
-        "1": product_url
-      })
+    console.log("Template 1 Success:", template1.sid);
+
+    // Wait 10 seconds
+    await sleep(10000);
+
+    // Send Template 2
+    console.log("Sending Template 2...");
+
+    const template2 = await client.messages.create({
+      from: data.template2.From,
+      to: data.template2.To,
+      contentSid: data.template2.ContentSid,
+      contentVariables: data.template2.ContentVariables
     });
+
+    console.log("Template 2 Success:", template2.sid);
 
     return res.json({
       success: true,
-      template1_sid: msg1.sid,
-      template2_sid: msg2.sid
+      template1_sid: template1.sid,
+      template2_sid: template2.sid
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("TWILIO ERROR");
+
+    console.error({
+      code: err.code,
+      status: err.status,
+      message: err.message,
+      moreInfo: err.moreInfo
+    });
 
     return res.status(500).json({
       success: false,
       code: err.code,
+      status: err.status,
       message: err.message,
       moreInfo: err.moreInfo
     });
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("WhatsApp API Running");
-});
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
