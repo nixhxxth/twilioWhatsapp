@@ -24,17 +24,15 @@ app.get("/", (req, res) => {
 });
 
 app.post("/send-whatsapp", async (req, res) => {
-
   try {
 
-    console.log("=================================");
-    console.log("Sending Template 1");
-    console.log("=================================");
+    console.log("Sending Template 1...");
 
     const template1 = await client.messages.create({
       from: "whatsapp:+14155238886",
       to: "whatsapp:+917200524344",
 
+      // USE THE TEMPLATE THAT WORKED LOCALLY
       contentSid: "HX65799a1d3eb99bb9023e8a20b309e169",
 
       contentVariables: JSON.stringify({
@@ -47,15 +45,11 @@ app.post("/send-whatsapp", async (req, res) => {
       })
     });
 
-    console.log("Template 1 Success");
-    console.log(template1.sid);
+    console.log("Template1 SID:", template1.sid);
 
-    console.log("Waiting 10 seconds...");
     await sleep(10000);
 
-    console.log("=================================");
-    console.log("Sending Template 2");
-    console.log("=================================");
+    console.log("Sending Template 2...");
 
     const template2 = await client.messages.create({
       from: "whatsapp:+14155238886",
@@ -68,8 +62,7 @@ app.post("/send-whatsapp", async (req, res) => {
       })
     });
 
-    console.log("Template 2 Success");
-    console.log(template2.sid);
+    console.log("Template2 SID:", template2.sid);
 
     return res.json({
       success: true,
