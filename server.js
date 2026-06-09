@@ -30,7 +30,7 @@ app.post("/send-whatsapp", async (req, res) => {
     const msg1 = await client.messages.create({
       from: "whatsapp:+14155238886",
       to: `whatsapp:${customer_phone}`,
-      contentSid: "HX83a327b9790c0ee676b06366863157f",
+      contentSid: "HX65799a1d3eb99bb9023e8a20b309e169",
       contentVariables: JSON.stringify({
         "1": customer_name,
         "2": product_title,
