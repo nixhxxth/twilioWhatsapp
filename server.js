@@ -16,6 +16,8 @@ app.get("/", (req, res) => res.json({ success: true, message: "WhatsApp API Runn
 
 app.post("/send-whatsapp", async (req, res) => {
   try {
+    console.log("Received body:", JSON.stringify(req.body, null, 2));
+
     const {
       customer_name,
       customer_phone,
@@ -25,10 +27,15 @@ app.post("/send-whatsapp", async (req, res) => {
       offer_price,
       reason,
       product_url = "https://yourdomain.com"
-    } = req.body;
+    } = req.body || {};
 
     if (!customer_phone) {
-      return res.status(400).json({ success: false, message: "customer_phone is required" });
+      console.log("Missing customer_phone. Available keys:", Object.keys(req.body || {}));
+      return res.status(400).json({ 
+        success: false, 
+        message: "customer_phone is required",
+        received_keys: Object.keys(req.body || {})
+      });
     }
 
     const to = `whatsapp:${customer_phone.toString().replace(/\s+/g, '').replace('+', '')}`;
@@ -48,6 +55,8 @@ app.post("/send-whatsapp", async (req, res) => {
       })
     });
 
+    console.log("✅ Template 1 sent:", template1.sid);
+
     await sleep(10000);
 
     // Template 2
@@ -55,10 +64,10 @@ app.post("/send-whatsapp", async (req, res) => {
       from: "whatsapp:+14155238886",
       to,
       contentSid: "HX0bb5b0e06114a758b6f383777f53c85f",
-      contentVariables: JSON.stringify({
-        "1": product_url
-      })
+      contentVariables: JSON.stringify({ "1": product_url })
     });
+
+    console.log("✅ Template 2 sent:", template2.sid);
 
     res.json({
       success: true,
