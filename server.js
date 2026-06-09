@@ -24,39 +24,52 @@ app.get("/", (req, res) => {
 });
 
 app.post("/send-whatsapp", async (req, res) => {
+
   try {
 
-    const data = req.body;
-
-    console.log("REQUEST RECEIVED");
-    console.log(JSON.stringify(data, null, 2));
-
-    // Send Template 1
-    console.log("Sending Template 1...");
+    console.log("=================================");
+    console.log("Sending Template 1");
+    console.log("=================================");
 
     const template1 = await client.messages.create({
-      from: data.template1.From,
-      to: data.template1.To,
-      contentSid: data.template1.ContentSid,
-      contentVariables: data.template1.ContentVariables
+      from: "whatsapp:+14155238886",
+      to: "whatsapp:+917200524344",
+
+      contentSid: "HX65799a1d3eb99bb9023e8a20b309e169",
+
+      contentVariables: JSON.stringify({
+        "1": "Nishanth P",
+        "2": "Noise Cancelling Headphones",
+        "3": "4999",
+        "4": "4499",
+        "5": "Special Offer Just For You",
+        "6": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
+      })
     });
 
-    console.log("Template 1 Success:", template1.sid);
+    console.log("Template 1 Success");
+    console.log(template1.sid);
 
-    // Wait 10 seconds
+    console.log("Waiting 10 seconds...");
     await sleep(10000);
 
-    // Send Template 2
-    console.log("Sending Template 2...");
+    console.log("=================================");
+    console.log("Sending Template 2");
+    console.log("=================================");
 
     const template2 = await client.messages.create({
-      from: data.template2.From,
-      to: data.template2.To,
-      contentSid: data.template2.ContentSid,
-      contentVariables: data.template2.ContentVariables
+      from: "whatsapp:+14155238886",
+      to: "whatsapp:+917200524344",
+
+      contentSid: "HX0bb5b0e06114a758b6f383777f53c85f",
+
+      contentVariables: JSON.stringify({
+        "1": "https://google.com"
+      })
     });
 
-    console.log("Template 2 Success:", template2.sid);
+    console.log("Template 2 Success");
+    console.log(template2.sid);
 
     return res.json({
       success: true,
