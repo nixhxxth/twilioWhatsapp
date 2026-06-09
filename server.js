@@ -14,51 +14,68 @@ const client = twilio(
 
 app.post("/send-whatsapp", async (req, res) => {
   try {
-    const data = req.body;
 
-    if (!data.template1 || !data.template2) {
-      return res.status(400).json({
-        success: false,
-        message: "template1 or template2 missing"
-      });
-    }
+    const {
+      customer_name,
+      customer_phone,
+      product_title,
+      product_image,
+      selling_price,
+      product_url
+    } = req.body;
 
-    // Send Template 1
+    const regularPrice = Math.round(selling_price * 1.25);
+
+    // MESSAGE 1
     const msg1 = await client.messages.create({
-      contentSid: data.template1.ContentSid,
-      contentVariables: data.template1.ContentVariables,
-      from: data.template1.From,
-      to: data.template1.To
+      from: "whatsapp:+14155238886",
+      to: `whatsapp:${customer_phone}`,
+      contentSid: "HX83a327b9790c0ee676b06366863157f",
+      contentVariables: JSON.stringify({
+        "1": customer_name,
+        "2": product_title,
+        "3": String(regularPrice),
+        "4": String(selling_price),
+        "5": "Special Offer Just For You!",
+        "6": product_image
+      })
     });
 
-    // Send Template 2
+    // MESSAGE 2
     const msg2 = await client.messages.create({
-      contentSid: data.template2.ContentSid,
-      contentVariables: data.template2.ContentVariables,
-      from: data.template2.From,
-      to: data.template2.To
+      from: "whatsapp:+14155238886",
+      to: `whatsapp:${customer_phone}`,
+      contentSid: "HX0bb5b0e06114a758b6f383777f53c85f",
+      contentVariables: JSON.stringify({
+        "1": product_url
+      })
     });
 
     return res.json({
       success: true,
-      customer: data.customer_name,
-      phone: data.customer_phone,
-      message1_sid: msg1.sid,
-      message2_sid: msg2.sid
+      template1_sid: msg1.sid,
+      template2_sid: msg2.sid
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+
+    console.error(err);
 
     return res.status(500).json({
       success: false,
-      error: error.message
+      code: err.code,
+      message: err.message,
+      moreInfo: err.moreInfo
     });
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("WhatsApp API Running");
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
